@@ -1,108 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ate Mich Cookbook</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
     <header class="main-header">
-        <h1>Ate Mich Cookbook</h1>
-        <div class="header-controls">
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="recipe-search" placeholder="Search by title or category..." class="search-input">
-            </div>
-            <button id="add-recipe-btn" class="add-button">
-                <i class="fas fa-plus"></i> Add New Recipe
-            </button>
+      <h1>Ate Mich Cookbook</h1>
+      <div class="header-controls">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            id="recipe-search"
+            placeholder="Search by title or category..."
+            class="search-input"
+          />
         </div>
+        <button id="add-recipe-btn" class="add-button">
+          <i class="fas fa-plus"></i> Add New Recipe
+        </button>
+      </div>
     </header>
 
     <main class="recipe-container" id="recipe-container">
-        <p id="empty-state" class="empty-message">
-            Your recipe collection is waiting for your culinary masterpiece.
-        </p>
+      <p id="empty-state" class="empty-message">
+        Your recipe collection is waiting for your culinary masterpiece.
+      </p>
     </main>
-    
+
     <div id="recipe-modal" class="modal">
-        <div class="modal-content glass-effect">
-            <span class="close-btn">&times;</span>
-            <h2 id="modal-title">Curate a Recipe</h2>
-            <form id="add-recipe-form">
-                
-                <input type="hidden" id="recipe-id-field"> <div class="form-group">
-                    <label for="recipe-title">Recipe Title:</label>
-                    <input type="text" id="recipe-title" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="recipe-summary">Short Summary:</label>
-                    <textarea id="recipe-summary" rows="2" required></textarea>
-                </div>
-                
-                <div class="form-group group-inline">
-                    <div class="input-inline">
-                        <label for="recipe-time"><i class="fas fa-clock"></i> Prep/Cook Time (min):</label>
-                        <input type="number" id="recipe-time" min="1" required>
-                    </div>
-                    <div class="input-inline">
-                        <label for="recipe-category"><i class="fas fa-utensils"></i> Category:</label>
-                        <input type="text" id="recipe-category" required>
-                    </div>
-                </div>
+      <div class="modal-content glass-effect">
+        <span class="close-btn">&times;</span>
+        <h2 id="modal-title">Curate a Recipe</h2>
+        <form id="add-recipe-form">
+          <input type="hidden" id="recipe-id-field" value="" />
 
-                <div class="form-group">
-                    <label for="recipe-ingredients">Ingredients (one per line):</label>
-                    <textarea id="recipe-ingredients" rows="4" required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="recipe-instructions">Instructions (one step per line for best results):</label>
-                    <textarea id="recipe-instructions" rows="6" required></textarea>
-                </div>
+          <div class="form-group">
+            <label for="recipe-title">Recipe Title</label>
+            <input type="text" id="recipe-title" required maxlength="100" />
+          </div>
 
-                <button type="submit" id="modal-submit-btn" class="submit-button">Save Recipe</button>
-            </form>
-        </div>
+          <div class="form-group">
+            <label for="recipe-summary">Short Summary</label>
+            <textarea
+              id="recipe-summary"
+              rows="2"
+              required
+              maxlength="250"
+            ></textarea>
+          </div>
+
+          <div class="group-inline">
+            <div class="form-group input-inline">
+              <label for="recipe-time">Prep/Cook Time (min)</label>
+              <input type="number" id="recipe-time" required min="1" />
+            </div>
+            <div class="form-group input-inline">
+              <label for="recipe-category"
+                >Category (e.g., Dinner, Dessert)</label
+              >
+              <input type="text" id="recipe-category" required maxlength="50" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="recipe-ingredients"
+              >Ingredients (One item per line)</label
+            >
+            <textarea
+              id="recipe-ingredients"
+              rows="5"
+              placeholder="1 cup flour&#10;2 tbsp sugar&#10;1 large egg"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="recipe-instructions"
+              >Instructions (One step per line)</label
+            >
+            <textarea
+              id="recipe-instructions"
+              rows="8"
+              placeholder="Preheat oven to 350°F.&#10;Mix dry ingredients.&#10;Bake for 30 minutes."
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" id="modal-submit-btn" class="submit-button">
+            Save Recipe
+          </button>
+        </form>
+      </div>
     </div>
 
     <div id="action-modal" class="modal">
-        <div class="modal-content action-content glass-effect">
-            <h3 id="action-title">Recipe Actions</h3>
-            <p>What would you like to do with this recipe?</p>
-            <div class="action-buttons">
-                <button id="edit-recipe-action-btn" class="action-btn edit-btn"><i class="fas fa-edit"></i> Edit</button>
-                <button id="delete-recipe-action-btn" class="action-btn delete-btn"><i class="fas fa-trash"></i> Delete</button>
-                <button id="cancel-action-btn" class="action-btn cancel-btn">Cancel</button>
-            </div>
+      <div class="modal-content action-content glass-effect">
+        <span class="close-btn action-close-btn">&times;</span>
+        <h3>Recipe Actions</h3>
+        <p>What would you like to do with this recipe?</p>
+        <div class="action-buttons">
+          <button id="edit-recipe-action-btn" class="action-btn edit-btn">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button id="delete-recipe-action-btn" class="action-btn delete-btn">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+          <button id="cancel-action-btn" class="action-btn cancel-btn">
+            Cancel
+          </button>
         </div>
+      </div>
     </div>
-    
+
     <div id="detail-modal" class="modal">
-        <div class="modal-content detail-content glass-effect">
-            <span class="close-btn detail-close-btn">&times;</span>
-            <h2 id="detail-title"></h2>
-            <p id="detail-summary" class="summary-text"></p>
-            
-            <div class="detail-info-bar">
-                <span class="detail-item"><i class="fas fa-clock"></i> <span id="detail-time"></span> min</span>
-                <span class="detail-item"><i class="fas fa-utensils"></i> <span id="detail-category"></span></span>
-            </div>
+      <div class="modal-content detail-content glass-effect">
+        <span class="close-btn detail-close-btn">&times;</span>
+        <h2 id="detail-title"></h2>
+        <p id="detail-summary" class="summary-text"></p>
 
-            <h3 class="section-heading">Ingredients</h3>
-            <div id="detail-ingredients" class="ingredients-list-container"></div> 
-            
-            <h3 class="section-heading">Instructions</h3>
-            <div id="detail-instructions" class="instructions-steps"></div> 
+        <div class="detail-info-bar">
+          <span class="detail-item"
+            ><i class="fas fa-clock"></i>
+            <span id="detail-time"></span> min</span
+          >
+          <span class="detail-item"
+            ><i class="fas fa-utensils"></i> <span id="detail-category"></span
+          ></span>
         </div>
+
+        <h3 class="section-heading">Ingredients</h3>
+        <div id="detail-ingredients" class="ingredients-list-container"></div>
+
+        <h3 class="section-heading">Instructions</h3>
+        <div id="detail-instructions" class="instructions-steps"></div>
+      </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyA8pktaSDJf3AwlxvNdakQPm_zV6ZC0ZUM",
+        authDomain: "ate-mich-cookbook.firebaseapp.com",
+        databaseURL: "https://ate-mich-cookbook-default-rtdb.firebaseio.com",
+        projectId: "ate-mich-cookbook",
+        storageBucket: "ate-mich-cookbook.firebasestorage.app",
+        messagingSenderId: "554447239728",
+        appId: "1:554447239728:web:86beab356548ea25208bf5",
+      };
+
+      // Initialize Firebase App and Realtime Database
+      const app = firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+    </script>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
