@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
+    // --- DOM Elements (UNCHANGED) ---
     const addRecipeBtn = document.getElementById('add-recipe-btn');
     const recipeModal = document.getElementById('recipe-modal');
     const actionModal = document.getElementById('action-modal'); 
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyState = document.getElementById('empty-state');
     const searchInput = document.getElementById('recipe-search'); 
 
-    // Modal Form Elements
+    // Modal Form Elements (UNCHANGED)
     const modalTitle = document.getElementById('modal-title');
     const modalSubmitBtn = document.getElementById('modal-submit-btn');
     const recipeIdField = document.getElementById('recipe-id-field');
@@ -20,12 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const recipeIngredientsInput = document.getElementById('recipe-ingredients');
     const recipeInstructionsInput = document.getElementById('recipe-instructions');
 
-    // Action Modal Buttons
+    // Action Modal Buttons (UNCHANGED)
     const editActionBtn = document.getElementById('edit-recipe-action-btn'); 
     const deleteActionBtn = document.getElementById('delete-recipe-action-btn'); 
     const cancelActionBtn = document.getElementById('cancel-action-btn'); 
     
-    // Detailed Modal Elements
+    // Detailed Modal Elements (UNCHANGED)
     const detailModal = document.getElementById('detail-modal');
     const detailTitle = document.getElementById('detail-title');
     const detailSummary = document.getElementById('detail-summary');
@@ -34,17 +34,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailIngredientsContainer = document.getElementById('detail-ingredients');
     const detailInstructionsSteps = document.getElementById('detail-instructions');
 
-    const LOCAL_STORAGE_KEY = 'myModernRecipes';
-    let recipes = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+    // --- GLOBAL VARIABLES UPDATED ---
+    let recipes = []; // Start with an empty array, data will be fetched.
     let currentRecipeId = null; 
 
-    const saveRecipes = () => {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(recipes));
-        updateEmptyState();
+    // REMOVED: LOCAL_STORAGE_KEY and DEFAULT_RECIPES logic is gone!
+
+    // --- NEW: API INTERACTION FUNCTIONS ---
+
+    // 1. Fetch recipes from the database
+    const fetchRecipes = async () => {
+        try {
+            const response = await fetch('/.netlify/functions/recipes');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // The function endpoint is recipes.js, Netlify handles the routing
+            recipes = await response.json(); 
+            // Database handles sorting (DESC by created_at)
+            renderRecipes();
+        } catch (error) {
+            console.error('Could not fetch recipes:', error);
+            // Optionally display an error message to the user
+            recipeContainer.innerHTML = `<p class="empty-message error">Failed to load recipes. Check your database connection.</p>`;
+        }
+    };
+    
+    // 2. Add/Edit recipe in the database
+    const saveRecipeToDatabase = async (formData, isEdit) => {
+        const url = `/.netlify/functions/recipes`;
+        const method = isEdit ? 'PUT' : 'POST'; // We need a PUT endpoint for edits (not yet created)
+        
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Send the ID for updates, but not for new creations
+                body: JSON.stringify(isEdit ? { id: recipeIdField.value, ...formData } : formData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // After success, re-fetch the entire list to update the UI
+            await fetchRecipes(); 
+            closeModal(recipeModal);
+        } catch (error) {
+            console.error('Could not save recipe:', error);
+            alert(`Failed to save recipe: ${error.message}.`);
+        }
     };
 
-    // --- Modal Functions ---
-    
+
+    // --- MODAL & UI LOGIC (Mostly Unchanged, just renamed functions) ---
+
     const openModal = (modalElement) => {
         modalElement.style.display = 'block';
     };
@@ -55,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addRecipeForm.reset(); 
             recipeIdField.value = '';
         }
-        // Remove 'selected' class from all cards when any modal closes
         document.querySelectorAll('.recipe-card.selected').forEach(card => {
             card.classList.remove('selected');
         });
@@ -76,11 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addRecipeBtn.addEventListener('click', () => {
         modalTitle.textContent = 'Curate a Recipe';
-        modalSubmitBtn.textContent = 'Save Recipe';
+        modalSubmitBtn.textContent = 'Save Culinary Creation';
         openModal(recipeModal);
     });
 
-    // --- Search and Filtering Logic ---
+    // --- Search and Filtering Logic (Uses the 'recipes' array fetched from DB) ---
     
     searchInput.addEventListener('input', () => {
         renderRecipes(); 
@@ -96,16 +141,17 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     };
 
-    // --- Recipe Display and Long Press Logic ---
-
     const updateEmptyState = () => {
         emptyState.style.display = recipes.length === 0 ? 'block' : 'none';
     };
 
+    // --- RENDER FUNCTIONS (UNCHANGED) ---
+    
     const createRecipeCard = (recipeData) => {
         const card = document.createElement('div');
         card.classList.add('recipe-card');
-        card.setAttribute('data-recipe-id', recipeData.id);
+        // Note: The ID from the DB is usually a string, but this is fine.
+        card.setAttribute('data-recipe-id', recipeData.id); 
 
         card.innerHTML = `
             <h3>${recipeData.title}</h3>
@@ -117,17 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="view-btn">View Recipe</button>
         `;
         
-        // View Button Listener
         card.querySelector('.view-btn').addEventListener('click', (e) => {
             e.stopPropagation(); 
             showRecipeDetails(recipeData.id);
         });
 
-        // Long Press Functionality for Edit/Delete
+        // Long Press Functionality for Edit/Delete (UNCHANGED)
         let pressTimer;
         
         const startPress = (e) => {
-            // Prevent the long press from accidentally triggering while scrolling on touch devices
             if (e.type === 'mousedown' && e.button !== 0) return; 
 
             clearTimeout(pressTimer); 
@@ -138,19 +182,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 currentRecipeId = recipeData.id;
                 openModal(actionModal);
-            }, 600); // 600ms is a standard long-press duration
+            }, 600); 
         };
 
         const endPress = () => {
             clearTimeout(pressTimer);
         };
 
-        // Standard Mouse Events
         card.addEventListener('mousedown', startPress);
         card.addEventListener('mouseup', endPress);
         card.addEventListener('mouseleave', endPress);
-
-        // Touch Events
         card.addEventListener('touchstart', startPress, {passive: true});
         card.addEventListener('touchend', endPress);
         card.addEventListener('touchcancel', endPress);
@@ -174,13 +215,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Action Modal Logic ---
+    // --- Action Modal Logic (Needs UPDATE for DELETE) ---
 
     editActionBtn.addEventListener('click', () => {
-        const recipe = recipes.find(r => r.id === currentRecipeId);
+        const recipe = recipes.find(r => r.id == currentRecipeId);
         if (!recipe) return;
-
-        // Populate the form
+        
+        // Ensure form is populated correctly (Database returns number for time, etc.)
         recipeIdField.value = recipe.id;
         recipeTitleInput.value = recipe.title;
         recipeSummaryInput.value = recipe.summary;
@@ -189,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         recipeIngredientsInput.value = recipe.ingredients;
         recipeInstructionsInput.value = recipe.instructions;
 
-        // Update modal for editing
         modalTitle.textContent = 'Edit Recipe';
         modalSubmitBtn.textContent = 'Save Changes';
         
@@ -197,13 +237,28 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(recipeModal);
     });
 
-    deleteActionBtn.addEventListener('click', () => {
-        // Simple confirmation before deleting
-        if (confirm(`Are you sure you want to permanently delete "${recipes.find(r => r.id === currentRecipeId)?.title || 'this recipe'}"?`)) {
-            recipes = recipes.filter(r => r.id !== currentRecipeId);
-            saveRecipes();
-            renderRecipes();
-            closeModal(actionModal);
+    deleteActionBtn.addEventListener('click', async () => {
+        const recipe = recipes.find(r => r.id == currentRecipeId);
+        if (!recipe) return;
+
+        if (confirm(`Are you sure you want to permanently delete "${recipe.title}" from the live database?`)) {
+            try {
+                // DELETE Endpoint (Needs to be created in recipes.js)
+                const response = await fetch(`/.netlify/functions/recipes?id=${currentRecipeId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Re-fetch data and close modal
+                await fetchRecipes(); 
+                closeModal(actionModal);
+            } catch (error) {
+                console.error('Could not delete recipe:', error);
+                alert(`Failed to delete recipe: ${error.message}`);
+            }
         }
     });
 
@@ -211,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal(actionModal);
     });
 
-    // --- Form Submission Handler (Add/Edit) ---
+    // --- Form Submission Handler (Calls the new save function) ---
 
     addRecipeForm.addEventListener('submit', (event) => {
         event.preventDefault(); 
@@ -219,38 +274,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             title: recipeTitleInput.value,
             summary: recipeSummaryInput.value,
-            time: recipeTimeInput.value,
+            // Convert time to a number or null if empty
+            time: recipeTimeInput.value ? parseInt(recipeTimeInput.value, 10) : null,
             category: recipeCategoryInput.value,
             ingredients: recipeIngredientsInput.value,
             instructions: recipeInstructionsInput.value,
         };
         
-        const existingId = recipeIdField.value;
+        const isEdit = !!recipeIdField.value;
 
-        if (existingId) {
-            // EDIT MODE
-            const index = recipes.findIndex(r => r.id == existingId);
-            if (index !== -1) {
-                // Ensure the ID and any other non-form fields are preserved
-                recipes[index] = { ...recipes[index], ...formData };
-            }
-        } else {
-            // ADD MODE
-            const newRecipe = {
-                id: Date.now(), 
-                ...formData
-            };
-            recipes.unshift(newRecipe);
-        }
-
-        saveRecipes();
-        renderRecipes();
-        closeModal(recipeModal);
+        // Call the new database saving function
+        saveRecipeToDatabase(formData, isEdit); 
     });
     
-    // --- Detail View Logic ---
+    // --- Detail View Logic (UNCHANGED) ---
     const showRecipeDetails = (id) => {
-        const recipe = recipes.find(r => r.id === id);
+        const recipe = recipes.find(r => r.id == id);
         if (!recipe) return;
 
         detailTitle.textContent = recipe.title;
@@ -258,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
         detailTime.textContent = recipe.time;
         detailCategory.textContent = recipe.category;
 
-        // Ingredients (Stacked Tags)
         detailIngredientsContainer.innerHTML = '';
         const ingredients = recipe.ingredients.split('\n').filter(i => i.trim() !== '');
 
@@ -269,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
             detailIngredientsContainer.appendChild(tag);
         });
 
-        // Instructions (Steps)
         detailInstructionsSteps.innerHTML = '';
         const instructions = recipe.instructions.split('\n').filter(i => i.trim() !== '');
 
@@ -288,5 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Initializer ---
-    renderRecipes();
+    // Start by fetching data from the database!
+    fetchRecipes(); 
 });
