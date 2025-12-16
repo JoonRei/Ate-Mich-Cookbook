@@ -138,6 +138,7 @@ body {
 }
 
 .recipe-card {
+    /* Disable text selection */
     user-select: none; 
     -webkit-user-select: none; 
     -ms-user-select: none; 
@@ -228,6 +229,7 @@ body {
 }
 
 .modal-content { 
+    /* Centering logic */
     margin: 0; 
     position: absolute; 
     top: 50%; 
@@ -298,7 +300,7 @@ body {
 }
 
 .action-btn {
-    /* NEW: Ensure buttons are same size and expand within the container */
+    /* Equal sizing */
     flex: 1; 
     
     padding: 10px 20px;
@@ -318,8 +320,6 @@ body {
     color: white;
     border: none;
 }
-
-/* Removed .cancel-btn style as the button was removed */
 
 .action-btn:hover {
     opacity: 0.8;
@@ -420,7 +420,7 @@ body {
 .step-content { font-size: 1em; color: #444; }
 
 
-/* Keyframes and Media Queries */
+/* Keyframes and Media Queries (Responsiveness) */
 @keyframes fadeIn { 
     0% { opacity: 0; transform: scale(0.95) translate(-50%, -50%); } 
     100% { opacity: 1; transform: scale(1) translate(-50%, -50%); } 
@@ -440,7 +440,7 @@ body {
 
     /* Modals (Fixed positioning for mobile scrolling) */
     .modal-content {
-        position: static; /* Allows natural scrolling within the modal if content is long */
+        position: static; 
         transform: none;
         margin: 20px auto; 
         max-height: 90vh;
