@@ -172,7 +172,7 @@ body::-webkit-scrollbar {
  */
 .recipe-card.selected {
     border: 3px solid #ff9a8d; 
-    box-shadow: 0 0 15px rgba(255, 154, 141, 0.5); /* Shadow adjusted to match new border color */
+    box-shadow: 0 0 5px rgba(255, 154, 141, 0.5);
 }
 
 .empty-message { 
@@ -500,3 +500,4 @@ body::-webkit-scrollbar {
         gap: 10px;
     }
 }
+
