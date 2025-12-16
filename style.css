@@ -30,7 +30,7 @@ body {
     line-height: 1.6;
 }
 
-/* --- Header & Button Styles --- */
+/* --- Header & Button Styles (Modern Sticky Glass Effect) --- */
 .main-header {
     position: sticky; 
     top: 0;
@@ -53,6 +53,8 @@ body {
 .main-header h1 {
     font-weight: 700; 
     color: var(--primary-color); 
+    /* Ensures title shrinks on small screens */
+    font-size: clamp(1.4rem, 2vw + 1rem, 2rem); 
 }
 
 .header-controls {
@@ -61,11 +63,13 @@ body {
     gap: 20px;
 }
 
-/* Search Input */
+/* Search Input (Consistent Height and Static Size) */
 .search-container {
     position: relative;
     display: flex; 
     align-items: center;
+    flex-grow: 1; /* Allow search bar to expand on larger screens */
+    max-width: 300px; 
 }
 
 .search-input {
@@ -73,7 +77,8 @@ body {
     border-radius: 50px !important;
     border: 1px solid #ddd !important; 
     
-    width: 280px; 
+    width: 100%; /* Important for responsiveness inside container */
+    min-width: 150px; /* Minimum width for mobile */
     background: white; 
     color: var(--secondary-color);
     font-size: 1em;
@@ -107,7 +112,7 @@ body {
 }
 
 
-/* Button Base Style */
+/* Button Base Style (Matching height standard) */
 .add-button, .submit-button, .view-btn {
     background: linear-gradient(45deg, var(--primary-color), #ff9a8d); 
     color: white;
@@ -129,15 +134,16 @@ body {
 }
 
 
-/* --- UPDATED: Recipe Card Styles (Reduced Top Padding) --- */
+/* --- Recipe Card Grid --- */
 .recipe-container {
-    /* Reduced from 100px to 60px */
     padding: 60px 5% 50px 5%; 
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    /* Adjusted minmax for better grid layout on small/medium screens */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 35px;
 }
 
+/* ... (Remaining Recipe Card Styles Unchanged) ... */
 .recipe-card.selected {
     border: 3px solid var(--accent-light);
     box-shadow: 0 0 15px rgba(82, 168, 255, 0.5);
@@ -201,7 +207,7 @@ body {
 }
 
 
-/* --- Modals (Unchanged) --- */
+/* --- Modals --- */
 .glass-effect { 
     background-color: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(10px); 
@@ -227,10 +233,19 @@ body {
     padding: 35px;
     border-radius: var(--radius-large);
     width: 90%; 
-    max-width: 650px;
+    max-width: 650px; /* Keep modal centered and readable */
     box-shadow: var(--shadow-hover);
     position: relative;
     animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+/* Mobile adjustment for modals to take up more screen space */
+@media (max-width: 600px) {
+    .modal-content {
+        margin: 10% 2%; /* Use margin instead of padding-top to keep content higher */
+        width: 96%;
+        max-width: 96%;
+        padding: 25px;
+    }
 }
 
 .close-btn { 
@@ -271,7 +286,12 @@ body {
 }
 
 .group-inline { display: flex; gap: 20px; }
+/* Adjustment for nested mobile responsiveness */
 .input-inline { flex-grow: 1; }
+@media (max-width: 500px) {
+    .group-inline { flex-direction: column; gap: 0; }
+}
+
 
 /* Action Modal Specific Styles */
 .action-content {
@@ -285,6 +305,13 @@ body {
     justify-content: center;
     margin-top: 25px;
 }
+/* Responsive action buttons */
+@media (max-width: 400px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
 
 .action-btn {
     padding: 10px 20px;
@@ -318,7 +345,7 @@ body {
 }
 
 
-/* --- Detailed View Modal Specific Styles (Unchanged) --- */
+/* --- Detailed View Modal Specific Styles (Unchanged for Mobile Readability) --- */
 .detail-content { max-width: 850px; }
 .summary-text { font-style: italic; color: #777; margin-bottom: 25px; font-size: 1.1em; }
 .detail-info-bar { 
@@ -328,6 +355,14 @@ body {
     margin-bottom: 25px; 
     border-bottom: 2px solid var(--primary-color); 
 }
+/* Detail bar stacking on small screens */
+@media (max-width: 450px) {
+    .detail-info-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
 .detail-info-bar .detail-item { font-size: 1em; }
 
 .section-heading { 
@@ -339,7 +374,7 @@ body {
     font-weight: 600; 
 }
 
-/* Ingredients as Stacked Tags */
+/* Ingredients and Instructions (Maintained vertical structure for mobile) */
 .ingredients-list-container { 
     display: flex;
     flex-direction: column; 
@@ -373,7 +408,6 @@ body {
     margin-right: 12px;
 }
 
-/* Instructions as Steps */
 .instructions-steps { padding: 10px 0; }
 
 .instruction-step {
@@ -410,15 +444,55 @@ body {
 .step-content { font-size: 1em; color: #444; }
 
 
-/* Keyframes and Media Queries */
+/* Keyframes and Primary Media Queries */
 @keyframes fadeIn { 
     0% { opacity: 0; transform: scale(0.95) translateY(-50px); } 
     100% { opacity: 1; transform: scale(1) translateY(0); } 
 }
 
+/* Mobile Screen Adjustments (Max Width 768px) */
 @media (max-width: 768px) {
-    .main-header { flex-direction: column; text-align: center; gap: 15px; }
-    .header-controls { justify-content: center; width: 100%; }
-    .search-input { width: 220px; } 
-    .group-inline { flex-direction: column; gap: 0; }
+    /* Header Stacks Vertically */
+    .main-header { 
+        flex-direction: column; 
+        text-align: center; 
+        gap: 15px; 
+        padding: 15px 5%; /* Reduced vertical padding */
+    }
+    .header-controls { 
+        justify-content: space-between; /* Space out search and button */
+        width: 100%; 
+    }
+    .search-container {
+        flex-grow: 1;
+        max-width: 60%; /* Allow search to take up most of the left side */
+    }
+    .add-button {
+        padding: 10px 15px; /* Slightly smaller button for mobile */
+        font-size: 0.9em;
+    }
+}
+
+/* Very Small Mobile Screen Adjustments (Max Width 480px) */
+@media (max-width: 480px) {
+    .main-header {
+        padding: 10px 5%; 
+    }
+    /* Force Controls to Stack for readability */
+    .header-controls {
+        flex-direction: column; 
+        gap: 10px;
+        align-items: stretch;
+    }
+    .search-container {
+        max-width: 100%; /* Search takes full width */
+    }
+    .add-button {
+        width: 100%; /* Button takes full width */
+    }
+    .recipe-container {
+        padding: 40px 5% 50px 5%; /* Reduced top padding */
+        /* Forces single column layout */
+        grid-template-columns: 1fr; 
+    }
 }
