@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Action Modal Buttons
     const editActionBtn = document.getElementById('edit-recipe-action-btn'); 
     const deleteActionBtn = document.getElementById('delete-recipe-action-btn'); 
-    const cancelActionBtn = document.getElementById('cancel-action-btn'); 
     
     // Detailed Modal Elements
     const detailModal = document.getElementById('detail-modal');
@@ -45,24 +44,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- REALTIME DATABASE CRUD Functions ---
     
     const setupRealtimeListener = () => {
-        // The core real-time function: runs once and then every time data changes
+        // This listener ensures the UI updates whenever data changes in the RTDB.
         recipesRef.on('value', (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 
                 // Convert the RTDB object structure into a local array
-                // The key in RTDB becomes the recipe ID
                 recipes = Object.keys(data).map(key => ({
                     id: key, 
                     ...data[key]
                 }));
 
-                // Sort by creation time (descending), using a property we will add in save/update
+                // Sort by creation time (descending)
                 recipes.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); 
             } else {
                 recipes = [];
             }
-            renderRecipes(); // Render the UI with the new data
+            renderRecipes(); // Re-render the UI with the new data
         }, (errorObject) => {
             console.error('The read failed:', errorObject.name);
             recipeContainer.innerHTML = `<p class="empty-message error">Could not connect to the Realtime Database.</p>`;
@@ -74,15 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const recipeData = {
                 ...formData,
-                // Use Date.now() as a simple timestamp for sorting
+                // If existing recipe, keep original createdAt. If new, set Date.now().
                 createdAt: id ? recipes.find(r => r.id === id)?.createdAt : Date.now() 
             };
 
             if (id) {
-                // UPDATE MODE: Update the specific child node
+                // UPDATE MODE: Use update() on the specific child node
                 await recipesRef.child(id).update(recipeData);
             } else {
-                // ADD MODE: Use push() to get a unique key, and set() the data
+                // ADD MODE: Use push() to get a unique key
                 await recipesRef.push(recipeData);
             }
             
@@ -106,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
-    // --- Modal Functions (No changes needed) ---
+    // --- Modal Functions ---
     
     const openModal = (modalElement) => {
         modalElement.style.display = 'block';
@@ -142,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(recipeModal);
     });
 
-    // --- Search and Filtering Logic (No changes needed) ---
+    // --- Search and Filtering Logic ---
     
     searchInput.addEventListener('input', () => {
         renderRecipes(); 
@@ -158,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     };
 
-    // --- Recipe Display and Long Press Logic (No major functional changes) ---
+    // --- Recipe Display and Long Press Logic ---
 
     const updateEmptyState = () => {
         emptyState.style.display = (recipes.length === 0 && !searchInput.value) ? 'block' : 'none';
@@ -261,10 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    cancelActionBtn.addEventListener('click', () => {
-        closeModal(actionModal);
-    });
-
     // --- Form Submission Handler (Add/Edit - Modified to call RTDB save/update) ---
 
     addRecipeForm.addEventListener('submit', (event) => {
@@ -285,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveRecipeToRTDB(existingId, formData);
     });
     
-    // --- Detail View Logic (No changes needed) ---
+    // --- Detail View Logic ---
     const showRecipeDetails = (id) => {
         const recipe = recipes.find(r => r.id === id); 
         if (!recipe) return;
