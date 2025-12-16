@@ -129,7 +129,7 @@ body {
 }
 
 
-/* --- UPDATED: Recipe Card Styles (Added text selection block) --- */
+/* --- Recipe Card Styles --- */
 .recipe-container {
     padding: 60px 5% 50px 5%; 
     display: grid;
@@ -138,12 +138,11 @@ body {
 }
 
 .recipe-card {
-    /* --- NEW: Disable text selection for long-press consistency --- */
     user-select: none; 
     -webkit-user-select: none; 
     -ms-user-select: none; 
     -moz-user-select: none; 
-    cursor: default; /* Reinforce non-interactive selection */
+    cursor: default; 
     
     background-color: var(--card-background);
     padding: 30px;
@@ -208,7 +207,7 @@ body {
 }
 
 
-/* --- Modals (Updated for Centering) --- */
+/* --- Modals --- */
 .glass-effect { 
     background-color: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(10px); 
@@ -226,11 +225,9 @@ body {
     height: 100%;
     overflow: auto; 
     background-color: rgba(0, 0, 0, 0.3); 
-    /* Removed padding-top for better centering */
 }
 
 .modal-content { 
-    /* --- NEW: Perfect vertical and horizontal centering --- */
     margin: 0; 
     position: absolute; 
     top: 50%; 
@@ -243,12 +240,10 @@ body {
     max-width: 650px;
     box-shadow: var(--shadow-hover);
     animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-    /* position: relative; removed as it conflicts with absolute positioning setup */
 }
 
 .close-btn { 
     color: var(--secondary-color); 
-    /* Float removed, using position absolute instead */
     font-size: 32px; 
     font-weight: 300; 
     position: absolute; 
@@ -283,7 +278,10 @@ body {
     background: white; 
 }
 
-.group-inline { display: flex; gap: 20px; }
+.group-inline { 
+    display: flex; 
+    gap: 20px; 
+}
 .input-inline { flex-grow: 1; }
 
 /* Action Modal Specific Styles */
@@ -300,6 +298,9 @@ body {
 }
 
 .action-btn {
+    /* NEW: Ensure buttons are same size and expand within the container */
+    flex: 1; 
+    
     padding: 10px 20px;
     border-radius: 50px;
     font-weight: 600;
@@ -318,11 +319,7 @@ body {
     border: none;
 }
 
-.cancel-btn {
-    background-color: #ccc;
-    color: var(--secondary-color);
-    border: none;
-}
+/* Removed .cancel-btn style as the button was removed */
 
 .action-btn:hover {
     opacity: 0.8;
@@ -331,7 +328,7 @@ body {
 }
 
 
-/* --- Detailed View Modal Specific Styles (Unchanged) --- */
+/* --- Detailed View Modal Specific Styles --- */
 .detail-content { max-width: 850px; }
 .summary-text { font-style: italic; color: #777; margin-bottom: 25px; font-size: 1.1em; }
 .detail-info-bar { 
@@ -430,16 +427,34 @@ body {
 }
 
 @media (max-width: 768px) {
+    /* Header/Controls */
     .main-header { flex-direction: column; text-align: center; gap: 15px; }
     .header-controls { justify-content: center; width: 100%; }
-    .search-input { width: 220px; } 
-    .group-inline { flex-direction: column; gap: 0; }
-    
-    /* On mobile, modals should be closer to the top for better visibility */
+    .search-input { width: 100%; max-width: 300px; } 
+
+    /* Form Layout */
+    .group-inline { 
+        flex-direction: column; 
+        gap: 0; 
+    }
+
+    /* Modals (Fixed positioning for mobile scrolling) */
     .modal-content {
-        top: 20px; /* Push content down slightly from the top edge */
-        transform: translate(-50%, 0); /* Only center horizontally */
-        margin: 0 auto;
-        animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: static; /* Allows natural scrolling within the modal if content is long */
+        transform: none;
+        margin: 20px auto; 
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(-20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Detail Info Bar Stacking */
+    .detail-info-bar {
+        flex-direction: column;
+        gap: 10px;
     }
 }
