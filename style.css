@@ -429,8 +429,20 @@ body {
 @media (max-width: 768px) {
     /* Header/Controls */
     .main-header { flex-direction: column; text-align: center; gap: 15px; }
-    .header-controls { justify-content: center; width: 100%; }
-    .search-input { width: 100%; max-width: 300px; } 
+    
+    /* FIX: Force controls to stack and stretch to full width */
+    .header-controls { 
+        width: 100%;
+        flex-direction: column; 
+        align-items: stretch; /* Stretches children to full width */
+        gap: 15px;
+    }
+    
+    /* Apply full width to search and add button */
+    .search-container { width: 100%; }
+    .search-input { width: 100% !important; max-width: none; } 
+    .add-button { width: 100%; } /* This makes the Add button responsive */
+
 
     /* Form Layout */
     .group-inline { 
