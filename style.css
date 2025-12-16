@@ -167,9 +167,12 @@ body::-webkit-scrollbar {
     border: 1px solid rgba(255, 255, 255, 0.5); 
 }
 
+/* * FIX: Updated border color for long-press selection 
+ * Changed from var(--accent-light) to #ff9a8d
+ */
 .recipe-card.selected {
-    border: 3px solid var(--accent-light);
-    box-shadow: 0 0 15px rgba(82, 168, 255, 0.5);
+    border: 3px solid #ff9a8d; 
+    box-shadow: 0 0 15px rgba(255, 154, 141, 0.5); /* Shadow adjusted to match new border color */
 }
 
 .empty-message { 
