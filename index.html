@@ -73,6 +73,7 @@
 
     <div id="action-modal" class="modal">
         <div class="modal-content action-content glass-effect">
+            <span class="close-btn action-close-btn">&times;</span>
             <h3 id="action-title">Recipe Actions</h3>
             <p>What would you like to do with this recipe?</p>
             <div class="action-buttons">
@@ -101,9 +102,11 @@
         </div>
     </div>
 
-     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script>
+      // YOUR REALTIME DATABASE CONFIGURATION
       const firebaseConfig = {
         apiKey: "AIzaSyA8pktaSDJf3AwlxvNdakQPm_zV6ZC0ZUM",
         authDomain: "ate-mich-cookbook.firebaseapp.com",
@@ -118,8 +121,7 @@
       const app = firebase.initializeApp(firebaseConfig);
       const db = firebase.database();
     </script>
-
-
-    <script src="script.js"></script>
+    
+    <script src="script.js"></script> 
 </body>
 </html>
