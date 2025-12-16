@@ -128,13 +128,31 @@ body {
     box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
 }
 
-/* --- Recipe Card Styles --- */
+
+/* --- UPDATED: Recipe Card Styles (Added text selection block) --- */
 .recipe-container {
     padding: 60px 5% 50px 5%; 
     display: grid;
-    /* Updated: Better min/max for grid on smaller screens */
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 35px;
+}
+
+.recipe-card {
+    /* --- NEW: Disable text selection for long-press consistency --- */
+    user-select: none; 
+    -webkit-user-select: none; 
+    -ms-user-select: none; 
+    -moz-user-select: none; 
+    cursor: default; /* Reinforce non-interactive selection */
+    
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.5); 
 }
 
 .recipe-card.selected {
@@ -151,16 +169,6 @@ body {
     font-weight: 300; 
 }
 
-.recipe-card {
-    background-color: var(--card-background);
-    padding: 30px;
-    border-radius: var(--radius-large);
-    box-shadow: var(--shadow-soft);
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(255, 255, 255, 0.5); 
-}
 
 .recipe-card:hover {
     transform: translateY(-5px);
@@ -200,7 +208,7 @@ body {
 }
 
 
-/* --- Modals --- */
+/* --- Modals (Updated for Centering) --- */
 .glass-effect { 
     background-color: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(10px); 
@@ -218,24 +226,29 @@ body {
     height: 100%;
     overflow: auto; 
     background-color: rgba(0, 0, 0, 0.3); 
-    padding-top: 50px; 
+    /* Removed padding-top for better centering */
 }
 
 .modal-content { 
-    /* Reduced margin-top for better mobile visibility */
-    margin: 4% auto; 
+    /* --- NEW: Perfect vertical and horizontal centering --- */
+    margin: 0; 
+    position: absolute; 
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
     padding: 35px;
     border-radius: var(--radius-large);
     width: 90%; 
     max-width: 650px;
     box-shadow: var(--shadow-hover);
-    position: relative;
     animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    /* position: relative; removed as it conflicts with absolute positioning setup */
 }
 
 .close-btn { 
     color: var(--secondary-color); 
-    float: right; 
+    /* Float removed, using position absolute instead */
     font-size: 32px; 
     font-weight: 300; 
     position: absolute; 
@@ -318,7 +331,7 @@ body {
 }
 
 
-/* --- Detailed View Modal Specific Styles --- */
+/* --- Detailed View Modal Specific Styles (Unchanged) --- */
 .detail-content { max-width: 850px; }
 .summary-text { font-style: italic; color: #777; margin-bottom: 25px; font-size: 1.1em; }
 .detail-info-bar { 
@@ -412,115 +425,21 @@ body {
 
 /* Keyframes and Media Queries */
 @keyframes fadeIn { 
-    0% { opacity: 0; transform: scale(0.95) translateY(-50px); } 
-    100% { opacity: 1; transform: scale(1) translateY(0); } 
+    0% { opacity: 0; transform: scale(0.95) translate(-50%, -50%); } 
+    100% { opacity: 1; transform: scale(1) translate(-50%, -50%); } 
 }
 
-/* --- Mobile-First Media Query Adjustments --- */
-
-/* Tablet & Smaller (Max 992px) */
-@media (max-width: 992px) {
-    .recipe-container {
-        /* Grid-column size adjusted for better tablet view */
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-        gap: 25px;
-        padding: 40px 4%;
-    }
-}
-
-/* Mobile Devices (Max 768px) */
 @media (max-width: 768px) {
+    .main-header { flex-direction: column; text-align: center; gap: 15px; }
+    .header-controls { justify-content: center; width: 100%; }
+    .search-input { width: 220px; } 
+    .group-inline { flex-direction: column; gap: 0; }
     
-    /* Header Stack & Sizing */
-    .main-header { 
-        flex-direction: column; 
-        text-align: center; 
-        gap: 15px; 
-        padding: 15px 4%; /* Smaller padding for mobile */
-    }
-    
-    .header-controls { 
-        justify-content: center; 
-        width: 100%; 
-        flex-direction: column; /* Stack controls vertically */
-        gap: 10px;
-    }
-    
-    /* Full-width Search */
-    .search-container {
-        width: 100%;
-        max-width: 350px; /* Limit search width for better centering */
-    }
-    .search-input { 
-        width: 100%; 
-        padding: 10px 15px 10px 45px !important; 
-        font-size: 0.95em;
-    } 
-    
-    /* Full-width Add Button */
-    .add-button {
-        width: 100%;
-        max-width: 350px;
-        padding: 10px 20px;
-        font-size: 0.95em;
-    }
-    
-    /* Recipe Cards - Simpler Layout */
-    .recipe-container {
-        /* Single column for phones */
-        grid-template-columns: 1fr; 
-        padding: 25px 4%;
-        gap: 20px;
-    }
-    
-    .recipe-card {
-        padding: 20px;
-    }
-    
-    .recipe-card h3 {
-        font-size: 1.4em;
-    }
-    
-    /* Form Modals - Stack Inline Fields */
+    /* On mobile, modals should be closer to the top for better visibility */
     .modal-content {
-        margin: 20px auto; /* More visible on smaller screens */
-        padding: 20px;
-    }
-    
-    .group-inline { 
-        flex-direction: column; 
-        gap: 0; 
-    }
-    
-    .modal h2 {
-        font-size: 1.5em;
-        margin-bottom: 20px;
-    }
-
-    .submit-button {
-        width: 100%;
-    }
-
-    /* Detail Modal Adjustments */
-    .detail-info-bar {
-        flex-direction: column;
-        gap: 10px;
-        padding-bottom: 15px;
-    }
-    
-    .ingredient-tag {
-        font-size: 0.95em;
-        padding: 10px 15px;
-    }
-    
-    .instruction-step {
-        padding: 10px;
-        gap: 15px;
-    }
-    
-    .step-number {
-        width: 25px;
-        height: 25px;
-        font-size: 1em;
+        top: 20px; /* Push content down slightly from the top edge */
+        transform: translate(-50%, 0); /* Only center horizontally */
+        margin: 0 auto;
+        animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 }
