@@ -23,6 +23,7 @@
     font-family: 'Poppins', sans-serif; 
 }
 
+/* --- Scrollbar Hiding for Body (Global) --- */
 body {
     /* Hide scrollbars for cross-browser compatibility */
     scrollbar-width: none; /* Firefox */
@@ -140,7 +141,7 @@ body::-webkit-scrollbar {
 
 /* --- Recipe Card Styles --- */
 .recipe-container {
-    /* FIX: Reduced top padding from 60px to 30px */
+    /* Decreased top padding for less space between header and cards */
     padding: 30px 5% 50px 5%; 
     
     display: grid;
@@ -441,25 +442,18 @@ body::-webkit-scrollbar {
     /* Header/Controls */
     .main-header { flex-direction: column; text-align: center; gap: 15px; }
     
-    /* FIX: Force controls to stack and stretch to full width */
+    /* Force controls to stack and stretch to full width */
     .header-controls { 
         width: 100%;
         flex-direction: column; 
-        align-items: stretch; /* Stretches children to full width */
+        align-items: stretch; 
         gap: 15px;
     }
     
     /* Apply full width to search and add button */
     .search-container { width: 100%; }
     .search-input { width: 100% !important; max-width: none; } 
-    .add-button { width: 100%; } /* This makes the Add button responsive */
-
-
-    /* Form Layout */
-    .group-inline { 
-        flex-direction: column; 
-        gap: 0; 
-    }
+    .add-button { width: 100%; } 
 
     /* Modals (Fixed positioning for mobile scrolling) */
     .modal-content {
@@ -468,6 +462,15 @@ body::-webkit-scrollbar {
         margin: 20px auto; 
         max-height: 90vh;
         overflow-y: auto;
+        
+        /* FIX: Hide scrollbar inside modals on mobile */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+    }
+    
+    /* FIX: Hide scrollbar inside modals for Webkit on mobile */
+    .modal-content::-webkit-scrollbar {
+        display: none;
     }
 
     @keyframes fadeIn {
@@ -479,5 +482,11 @@ body::-webkit-scrollbar {
     .detail-info-bar {
         flex-direction: column;
         gap: 10px;
+    }
+
+    /* Form Layout */
+    .group-inline { 
+        flex-direction: column; 
+        gap: 0; 
     }
 }
