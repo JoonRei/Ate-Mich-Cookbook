@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Firebase Setup ---
+    // The 'db' object is now available globally, initialized in index.html
+    const recipesRef = db.ref('recipes'); // Reference to the 'recipes' node in RTDB
+
     // --- DOM Elements ---
     const addRecipeBtn = document.getElementById('add-recipe-btn');
     const recipeModal = document.getElementById('recipe-modal');
@@ -34,16 +38,75 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailIngredientsContainer = document.getElementById('detail-ingredients');
     const detailInstructionsSteps = document.getElementById('detail-instructions');
 
-    const LOCAL_STORAGE_KEY = 'myModernRecipes';
-    let recipes = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+    // Local array to hold fetched data
+    let recipes = []; 
     let currentRecipeId = null; 
 
-    const saveRecipes = () => {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(recipes));
-        updateEmptyState();
+    // --- REALTIME DATABASE CRUD Functions ---
+    
+    const setupRealtimeListener = () => {
+        // The core real-time function: runs once and then every time data changes
+        recipesRef.on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                
+                // Convert the RTDB object structure into a local array
+                // The key in RTDB becomes the recipe ID
+                recipes = Object.keys(data).map(key => ({
+                    id: key, 
+                    ...data[key]
+                }));
+
+                // Sort by creation time (descending), using a property we will add in save/update
+                recipes.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); 
+            } else {
+                recipes = [];
+            }
+            renderRecipes(); // Render the UI with the new data
+        }, (errorObject) => {
+            console.error('The read failed:', errorObject.name);
+            recipeContainer.innerHTML = `<p class="empty-message error">Could not connect to the Realtime Database.</p>`;
+        });
+    };
+    
+    // Create/Update function
+    const saveRecipeToRTDB = async (id, formData) => {
+        try {
+            const recipeData = {
+                ...formData,
+                // Use Date.now() as a simple timestamp for sorting
+                createdAt: id ? recipes.find(r => r.id === id)?.createdAt : Date.now() 
+            };
+
+            if (id) {
+                // UPDATE MODE: Update the specific child node
+                await recipesRef.child(id).update(recipeData);
+            } else {
+                // ADD MODE: Use push() to get a unique key, and set() the data
+                await recipesRef.push(recipeData);
+            }
+            
+            closeModal(recipeModal);
+        } catch (error) {
+            console.error('Error saving recipe to RTDB:', error);
+            alert('Failed to save recipe. Please try again.');
+        }
     };
 
-    // --- Modal Functions ---
+    const deleteRecipeFromRTDB = async (id) => {
+        try {
+            // Use remove() to delete the specific child node
+            await recipesRef.child(id).remove();
+            
+            closeModal(actionModal);
+        } catch (error) {
+            console.error('Error deleting recipe from RTDB:', error);
+            alert('Failed to delete recipe. Please try again.');
+        }
+    };
+
+
+    // --- Modal Functions (No changes needed) ---
     
     const openModal = (modalElement) => {
         modalElement.style.display = 'block';
@@ -55,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addRecipeForm.reset(); 
             recipeIdField.value = '';
         }
-        // Remove 'selected' class from all cards when any modal closes
         document.querySelectorAll('.recipe-card.selected').forEach(card => {
             card.classList.remove('selected');
         });
@@ -80,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(recipeModal);
     });
 
-    // --- Search and Filtering Logic ---
+    // --- Search and Filtering Logic (No changes needed) ---
     
     searchInput.addEventListener('input', () => {
         renderRecipes(); 
@@ -91,15 +153,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!query) return recipes;
 
         return recipes.filter(recipe => 
-            recipe.title.toLowerCase().includes(query) ||
-            recipe.category.toLowerCase().includes(query)
+            (recipe.title && recipe.title.toLowerCase().includes(query)) ||
+            (recipe.category && recipe.category.toLowerCase().includes(query))
         );
     };
 
-    // --- Recipe Display and Long Press Logic ---
+    // --- Recipe Display and Long Press Logic (No major functional changes) ---
 
     const updateEmptyState = () => {
-        emptyState.style.display = recipes.length === 0 ? 'block' : 'none';
+        emptyState.style.display = (recipes.length === 0 && !searchInput.value) ? 'block' : 'none';
     };
 
     const createRecipeCard = (recipeData) => {
@@ -127,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let pressTimer;
         
         const startPress = (e) => {
-            // Prevent the long press from accidentally triggering while scrolling on touch devices
             if (e.type === 'mousedown' && e.button !== 0) return; 
 
             clearTimeout(pressTimer); 
@@ -138,19 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 currentRecipeId = recipeData.id;
                 openModal(actionModal);
-            }, 600); // 600ms is a standard long-press duration
+            }, 600); 
         };
 
         const endPress = () => {
             clearTimeout(pressTimer);
         };
 
-        // Standard Mouse Events
         card.addEventListener('mousedown', startPress);
         card.addEventListener('mouseup', endPress);
         card.addEventListener('mouseleave', endPress);
-
-        // Touch Events
         card.addEventListener('touchstart', startPress, {passive: true});
         card.addEventListener('touchend', endPress);
         card.addEventListener('touchcancel', endPress);
@@ -164,17 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
         recipeContainer.innerHTML = ''; 
         if (filteredRecipes.length === 0 && searchInput.value) {
             recipeContainer.innerHTML = `<p class="empty-message">No recipes found matching "${searchInput.value}".</p>`;
-        } else if (filteredRecipes.length === 0) {
-             updateEmptyState();
         } else {
             filteredRecipes.forEach(recipe => {
                 recipeContainer.appendChild(createRecipeCard(recipe));
             });
-            emptyState.style.display = 'none';
+            updateEmptyState();
         }
     };
 
-    // --- Action Modal Logic ---
+    // --- Action Modal Logic (Modified to call RTDB delete) ---
 
     editActionBtn.addEventListener('click', () => {
         const recipe = recipes.find(r => r.id === currentRecipeId);
@@ -186,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recipeSummaryInput.value = recipe.summary;
         recipeTimeInput.value = recipe.time;
         recipeCategoryInput.value = recipe.category;
-        recipeIngredientsInput.value = recipe.ingredients;
+        recipeIngredientsInput.value = recipe.ingredients; 
         recipeInstructionsInput.value = recipe.instructions;
 
         // Update modal for editing
@@ -198,12 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     deleteActionBtn.addEventListener('click', () => {
-        // Simple confirmation before deleting
-        if (confirm(`Are you sure you want to permanently delete "${recipes.find(r => r.id === currentRecipeId)?.title || 'this recipe'}"?`)) {
-            recipes = recipes.filter(r => r.id !== currentRecipeId);
-            saveRecipes();
-            renderRecipes();
-            closeModal(actionModal);
+        const recipeTitle = recipes.find(r => r.id === currentRecipeId)?.title || 'this recipe';
+        if (confirm(`Are you sure you want to permanently delete "${recipeTitle}"?`)) {
+            // Call RTDB delete function
+            deleteRecipeFromRTDB(currentRecipeId); 
         }
     });
 
@@ -211,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal(actionModal);
     });
 
-    // --- Form Submission Handler (Add/Edit) ---
+    // --- Form Submission Handler (Add/Edit - Modified to call RTDB save/update) ---
 
     addRecipeForm.addEventListener('submit', (event) => {
         event.preventDefault(); 
@@ -219,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             title: recipeTitleInput.value,
             summary: recipeSummaryInput.value,
-            time: recipeTimeInput.value,
+            time: parseInt(recipeTimeInput.value), 
             category: recipeCategoryInput.value,
             ingredients: recipeIngredientsInput.value,
             instructions: recipeInstructionsInput.value,
@@ -227,30 +281,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const existingId = recipeIdField.value;
 
-        if (existingId) {
-            // EDIT MODE
-            const index = recipes.findIndex(r => r.id == existingId);
-            if (index !== -1) {
-                // Ensure the ID and any other non-form fields are preserved
-                recipes[index] = { ...recipes[index], ...formData };
-            }
-        } else {
-            // ADD MODE
-            const newRecipe = {
-                id: Date.now(), 
-                ...formData
-            };
-            recipes.unshift(newRecipe);
-        }
-
-        saveRecipes();
-        renderRecipes();
-        closeModal(recipeModal);
+        // Call the unified save function
+        saveRecipeToRTDB(existingId, formData);
     });
     
-    // --- Detail View Logic ---
+    // --- Detail View Logic (No changes needed) ---
     const showRecipeDetails = (id) => {
-        const recipe = recipes.find(r => r.id === id);
+        const recipe = recipes.find(r => r.id === id); 
         if (!recipe) return;
 
         detailTitle.textContent = recipe.title;
@@ -288,5 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Initializer ---
-    renderRecipes();
+    // Start by setting up the real-time listener
+    setupRealtimeListener(); 
 });
