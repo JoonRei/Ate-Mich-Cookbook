@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 currentRecipeId = recipeData.id;
                 openModal(actionModal);
-            }, 600); 
+            }, 800); 
         };
 
         const endPress = () => {
@@ -322,3 +322,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start by setting up the real-time listener
     setupRealtimeListener(); 
 });
+
