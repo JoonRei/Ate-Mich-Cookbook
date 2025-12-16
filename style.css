@@ -275,6 +275,7 @@ body::-webkit-scrollbar {
 .form-group { margin-bottom: 20px; }
 .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--secondary-color); font-size: 0.95em; }
 
+/* Ensures all form inputs and textareas are 100% wide on all screens */
 .form-group input, .form-group textarea { 
     width: 100%; 
     padding: 12px; 
@@ -292,6 +293,7 @@ body::-webkit-scrollbar {
     background: white; 
 }
 
+/* Styles for two fields on the same line (desktop) */
 .group-inline { 
     display: flex; 
     gap: 20px; 
@@ -455,6 +457,17 @@ body::-webkit-scrollbar {
     .search-input { width: 100% !important; max-width: none; } 
     .add-button { width: 100%; } 
 
+    /* FIX: Force inline groups to stack on mobile */
+    .group-inline { 
+        flex-direction: column; 
+        gap: 0; 
+    }
+    /* Ensure the inputs inside the stacked groups still take full width of the parent modal */
+    .input-inline {
+        width: 100%;
+    }
+
+
     /* Modals (Fixed positioning for mobile scrolling) */
     .modal-content {
         position: static; 
@@ -463,12 +476,12 @@ body::-webkit-scrollbar {
         max-height: 90vh;
         overflow-y: auto;
         
-        /* FIX: Hide scrollbar inside modals on mobile */
+        /* Hide scrollbar inside modals on mobile */
         scrollbar-width: none; /* Firefox */
         -ms-overflow-style: none; /* IE and Edge */
     }
     
-    /* FIX: Hide scrollbar inside modals for Webkit on mobile */
+    /* Hide scrollbar inside modals for Webkit on mobile */
     .modal-content::-webkit-scrollbar {
         display: none;
     }
@@ -482,11 +495,5 @@ body::-webkit-scrollbar {
     .detail-info-bar {
         flex-direction: column;
         gap: 10px;
-    }
-
-    /* Form Layout */
-    .group-inline { 
-        flex-direction: column; 
-        gap: 0; 
     }
 }
